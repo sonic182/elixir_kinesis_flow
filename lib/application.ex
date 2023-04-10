@@ -9,7 +9,9 @@ defmodule Sampleapp.Application do
   @impl Application
   def start(_type, _args) do
     children = [
-      {Flows.IsPrime, [counter_specs(), is_prime_result_stage()]}
+      # uncomment this, to see the IsPrime flow running
+      # {Flows.IsPrime, [counter_specs(), is_prime_result_stage()]},
+      # {Flows.KinesisParse, counter_specs()}
     ]
 
     opts = [strategy: :one_for_one, name: DooFeeds.Supervisor]

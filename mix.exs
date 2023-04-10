@@ -24,8 +24,9 @@ defmodule Sampleapp.MixProject do
     [
       {:ex_aws, "~> 2.0"},
       {:ex_aws_kinesis, "~> 2.0"},
-      {:hackney, "~> 1.9"},
       {:flow, "~> 1.2"},
+      {:hackney, "~> 1.9"},
+      {:jason, "~> 1.4"},
       {:number, "~> 1.0"},
       {:poison, "~> 3.0"}
     ]

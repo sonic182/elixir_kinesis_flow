@@ -23,7 +23,7 @@ defmodule Sampleapp.Stages.IsPrimeFinalStage do
     Logger.info("--- consumer received #{length(events)} events. Last prime calculated: #{last}")
 
     # Wait for a second.
-    Process.sleep(100)
+    Process.sleep(:timer.seconds(3))
 
     # We are a consumer, so we would never emit items.
     {:noreply, [], state}
