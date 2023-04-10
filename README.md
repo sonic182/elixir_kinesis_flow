@@ -8,3 +8,4 @@ Example app for parsing kinesis stream with elixir and flow, for some real time 
 * We are using docker and docker-compose
 * We use [localstack](https://localstack.cloud/) for emulate kinesis in localhost
 * [ex_aws_kinesis](https://github.com/ex-aws/ex_aws_kinesis) library to iteract with local kinesis
+* We have added certain demos (IsPrime flow and stages...) for easily understand GenStage and Flow libraries. 
