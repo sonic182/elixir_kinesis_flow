@@ -1,21 +1,10 @@
 # Sampleapp
 
-**TODO: Add description**
+Example app for parsing kinesis stream with elixir and flow, for some real time services.
 
-## Installation
 
-If [available in Hex](https://hex.pm/docs/publish), the package can be installed
-by adding `sampleapp` to your list of dependencies in `mix.exs`:
+### How this demo works
 
-```elixir
-def deps do
-  [
-    {:sampleapp, "~> 0.1.0"}
-  ]
-end
-```
-
-Documentation can be generated with [ExDoc](https://github.com/elixir-lang/ex_doc)
-and published on [HexDocs](https://hexdocs.pm). Once published, the docs can
-be found at <https://hexdocs.pm/sampleapp>.
-
+* We are using docker and docker-compose
+* We use [localstack](https://localstack.cloud/) for emulate kinesis in localhost
+* [ex_aws_kinesis](https://github.com/ex-aws/ex_aws_kinesis) library to iteract with local kinesis

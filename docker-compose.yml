@@ -1,6 +1,16 @@
 version: "3.8"
 
 services:
+
+  app:
+    build: .
+    entrypoint: bash /usr/src/app/entrypoint.sh
+    command: ["mix", "run", "--no-halt"]
+    depends_on:
+      - localstack
+    volumes:
+      - .:/usr/src/app
+
   localstack:
     container_name: "${LOCALSTACK_DOCKER_NAME-localstack_main}"
     image: localstack/localstack
