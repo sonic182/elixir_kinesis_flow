@@ -20,7 +20,7 @@ services:
       # see https://docs.localstack.cloud/user-guide/aws/kinesis/
       # - DEBUG=1
       - EDGE_PORT=80
-      - LOCALSTACK_SERVICES=kinesis,ec2,iam,s3
+      - LOCALSTACK_SERVICES=kinesis,iam,s3,ec2
       - LOCALSTACK_KINESIS_INITIALIZE_STREAMS=samplestream:1
       - DOCKER_HOST=unix:///var/run/docker.sock
     volumes:

@@ -10,7 +10,8 @@ defmodule Sampleapp.Flows.KinesisParse do
     producer_specs
     |> Flow.from_specs(kinesis_spec_opts())
     |> Flow.map(fn item ->
-      IO.inspect item, label: "--- item"
+      IO.inspect(item, label: "--- item")
+      Process.sleep(:timer.seconds(3))
     end)
     # |> Flow.through_specs(consumer_specs, counter_producer_consumer_opts())
     |> Flow.start_link()
@@ -18,7 +19,6 @@ defmodule Sampleapp.Flows.KinesisParse do
 
   defp kinesis_spec_opts() do
     # :stages control the internal flow concurrency
-    [min_demand: 10_000, max_demand: 30_000]
+    [stages: 1]
   end
-
 end
