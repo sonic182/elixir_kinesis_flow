@@ -12,7 +12,8 @@ defmodule Sampleapp.Stages.KinesisReader do
   use GenStage
 
   def start_link(opts) do
-    GenStage.start_link(__MODULE__, opts)
+    name = Keyword.get(opts, :name, __MODULE__)
+    GenStage.start_link(__MODULE__, opts, name: name)
   end
 
   def init(opts) do
@@ -44,6 +45,7 @@ defmodule Sampleapp.Stages.KinesisReader do
   defp get_events(iterator, limit \\ 1000) do
     {:ok, %{"NextShardIterator" => iterator, "Records" => records}} =
       Kinesis.get_records(iterator, limit: limit) |> ExAws.request()
+
     {records, iterator}
   end
 
