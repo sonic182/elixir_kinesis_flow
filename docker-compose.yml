@@ -13,6 +13,13 @@ services:
     networks:
       vpcbr:
 
+  mongo:
+    image: mongo:4.4
+    ports:
+      - 27017:27017
+    networks:
+      vpcbr:
+
   localstack:
     container_name: "${LOCALSTACK_DOCKER_NAME-localstack_main}"
     image: localstack/localstack

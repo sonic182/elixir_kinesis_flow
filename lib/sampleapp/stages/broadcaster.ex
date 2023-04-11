@@ -5,17 +5,22 @@ defmodule Sampleapp.Stages.Broadcaster do
 
   use GenStage
 
+  require Logger
+
   def start_link(opts) do
     name = Keyword.get(opts, :name, __MODULE__)
     GenStage.start_link(__MODULE__, opts, name: name)
   end
 
   def init(opts) do
+    Logger.debug("---- broadcaster init... #{inspect(opts)}")
     Keyword.merge([dispatcher: GenStage.BroadcastDispatcher], opts)
     {:producer_consumer, opts}
   end
 
   def handle_events(events, _from, state) do
+    name = Keyword.get(state, :name)
+    # Logger.debug("[#{name}] broadcasting #{length(events)} events")
     # just a proxy of events
     {:noreply, events, state}
   end

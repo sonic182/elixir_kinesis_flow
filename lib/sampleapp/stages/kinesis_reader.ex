@@ -3,7 +3,8 @@ defmodule Sampleapp.Stages.KinesisReader do
   Kinesis Reader GenStage.
   """
 
-  @delay :timer.seconds(5)
+  @delay :timer.seconds(1)
+  @limit 5000
 
   require Logger
 
@@ -42,7 +43,7 @@ defmodule Sampleapp.Stages.KinesisReader do
     {:noreply, events, state}
   end
 
-  defp get_events(iterator, limit \\ 1000) do
+  defp get_events(iterator, limit \\ @limit) do
     {:ok, %{"NextShardIterator" => iterator, "Records" => records}} =
       Kinesis.get_records(iterator, limit: limit) |> ExAws.request()
 
@@ -58,8 +59,9 @@ defmodule Sampleapp.Stages.KinesisReader do
 
     shard_id = stream_data["StreamDescription"]["Shards"] |> hd() |> Map.get("ShardId")
 
+    # :trim_horizon to read starting from last read record. See https://docs.aws.amazon.com/kinesis/latest/APIReference/API_GetShardIterator.html
     {:ok, %{"ShardIterator" => iterator}} =
-      stream_name |> Kinesis.get_shard_iterator(shard_id, :latest) |> ExAws.request()
+      stream_name |> Kinesis.get_shard_iterator(shard_id, :trim_horizon) |> ExAws.request()
 
     iterator
   end

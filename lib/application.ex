@@ -9,6 +9,7 @@ defmodule Sampleapp.Application do
   @impl Application
   def start(_type, _args) do
     debug = System.get_env("DEBUG")
+    mongo_config = Application.get_env(:sampleapp, :mongo)
 
     children =
       [
@@ -22,6 +23,7 @@ defmodule Sampleapp.Application do
         #      {Stages.IsPrimeFinalStage, []}
         #    ]
         #  ]},
+        {Mongo, mongo_config}
       ] ++ add_kinesis(debug)
 
     opts = [strategy: :one_for_one, name: DooFeeds.Supervisor]
@@ -36,8 +38,17 @@ defmodule Sampleapp.Application do
       {Stages.KinesisReader, [name: kinesis_reader, stream_name: "samplestream"]},
       {Stages.Broadcaster, [name: broadcaster_id]},
       {Flows.KinesisParser, [producers: [kinesis_reader], consumers: [broadcaster_id]]},
-      {Flows.SearchAggregator, [producers: [broadcaster_id], consumers: []]},
-      # {Flows.RawStore, [producers: [broadcaster_id], consumers: []]},
+      %{
+        id: :searches_store,
+        start: {Stages.MongoStore, :start_link, [[name: :searches, collection: "searches"]]}
+      },
+      {Flows.SearchAggregator, [producers: [broadcaster_id], consumers: [:searches]]}
+      # %{
+      #   id: :rawevents_store,
+      #   start:
+      #     {Stages.MongoStore, :start_link,
+      #      [[name: :rawevents_store, producers: [broadcaster_id], collection: "rawevents"]]}
+      # }
     ]
   end
 

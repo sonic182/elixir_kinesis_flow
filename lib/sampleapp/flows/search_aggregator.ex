@@ -5,7 +5,6 @@ defmodule Sampleapp.Flows.SearchAggregator do
   use Flow
 
   alias Flow.Window
-  alias Sampleapp.KinesisEvent
 
   require Logger
 
@@ -21,15 +20,13 @@ defmodule Sampleapp.Flows.SearchAggregator do
     |> Flow.partition(window: window, key: {:key, :event_key})
     |> Flow.reduce(fn -> %{} end, &reduce_events/2)
     |> Flow.on_trigger(&on_reduce_trigger/3)
-    |> Flow.start_link()
-
-    # |> Flow.into_specs(consumers)
+    |> Flow.into_stages(consumers)
   end
 
   defp get_reducer_window() do
-    5
+    10
     |> Window.fixed(:second, &DateTime.to_unix(&1.timestamp, :millisecond))
-    |> Window.allowed_lateness(3, :second)
+    |> Window.allowed_lateness(5, :second)
   end
 
   defp kinesis_spec_opts() do
@@ -49,13 +46,29 @@ defmodule Sampleapp.Flows.SearchAggregator do
   defp on_reduce_trigger(acc, _, _), do: on_reduce_trigger(acc)
 
   defp on_reduce_trigger(acc) do
-    IO.inspect(acc, label: "-----acc")
-    Process.sleep(1000)
-    # events =
-    #   acc
-    #   |> Enum.map(fn key, searches ->
-    #     {key, Enum.sort_by(searches, &DateTime.to_unix(&1.timestamp, :millisecond))}
-    #   end)
-    {[], %{}}
+    events = Enum.reduce(acc, [], &cleanup_same_search/2)
+    {events, %{}}
+  end
+
+  defp cleanup_same_search({_event_key, events}, acc) do
+    new_events =
+      events
+      |> Enum.sort_by(&DateTime.to_unix(&1.timestamp), :desc)
+      |> cleanup_same_query()
+
+    acc ++ new_events
+  end
+
+  defp cleanup_same_query([current]), do: [current]
+
+  defp cleanup_same_query([current | nexts]) do
+    [next | nexts_skip_one] = nexts
+
+    if String.contains?(current.word, next.word) or
+         String.jaro_distance(current.word, next.word) > 0.85 do
+      cleanup_same_query([current | nexts_skip_one])
+    else
+      [current | cleanup_same_query(nexts)]
+    end
   end
 end

@@ -27,6 +27,7 @@ defmodule Sampleapp.MixProject do
       {:flow, "~> 1.2"},
       {:hackney, "~> 1.9"},
       {:jason, "~> 1.4"},
+      {:mongodb_driver, "~> 1.0"},
       {:number, "~> 1.0"},
       {:poison, "~> 3.0"}
     ]
