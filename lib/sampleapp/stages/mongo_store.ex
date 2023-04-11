@@ -19,24 +19,33 @@ defmodule Sampleapp.Stages.MongoStore do
     min_bulk = Keyword.get(opts, :min_bulk, 300)
     # max delay to send data
     max_delay = Keyword.get(opts, :max_delay, 5_000)
+    buffering = Keyword.get(opts, :buffering, true)
 
     state = %{
       collection: collection,
       events: :queue.new(),
       events_count: 0,
       min_bulk: min_bulk,
-      max_delay: max_delay
+      max_delay: max_delay,
+      buffering: buffering
     }
 
     Logger.debug("--- initialized mongo store with opts #{inspect(opts)}")
 
-    schedule_foce_insert(max_delay)
+    if buffering do
+      schedule_foce_insert(max_delay)
+    end
 
     case producers do
       [] ->
         {:consumer, state}
 
       producers ->
+        producers =
+          Enum.map(producers, fn pid ->
+            {pid, [min_demand: 500, max_demand: 1000]}
+          end)
+
         {:consumer, state, [subscribe_to: producers]}
     end
   end
@@ -46,6 +55,15 @@ defmodule Sampleapp.Stages.MongoStore do
     schedule_foce_insert(state.max_delay)
 
     # no events emit as this is a consumer
+    {:noreply, [], state}
+  end
+
+  def handle_events(events, _from, %{buffering: false} = state) do
+    Logger.debug("received #{length(events)} events to insert on collection #{state.collection}.")
+
+    {:ok, %{acknowledged: true}} = Mongo.insert_many(:mongo, state.collection, events)
+
+    Logger.debug("inserted #{length(events)} events on collection #{state.collection}.")
     {:noreply, [], state}
   end
 

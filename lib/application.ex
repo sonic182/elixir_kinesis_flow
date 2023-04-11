@@ -47,7 +47,14 @@ defmodule Sampleapp.Application do
         id: :rawevents_store,
         start:
           {Stages.MongoStore, :start_link,
-           [[name: :rawevents_store, producers: [broadcaster_id], collection: "rawevents"]]}
+           [
+             [
+               name: :rawevents_store,
+               buffering: false,
+               producers: [broadcaster_id],
+               collection: "rawevents"
+             ]
+           ]}
       }
     ]
   end

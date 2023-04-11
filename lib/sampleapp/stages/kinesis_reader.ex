@@ -3,7 +3,7 @@ defmodule Sampleapp.Stages.KinesisReader do
   Kinesis Reader GenStage.
   """
 
-  @delay :timer.seconds(1)
+  @delay :timer.seconds(2)
   @limit 5000
 
   require Logger
