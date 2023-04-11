@@ -24,9 +24,9 @@ defmodule Sampleapp.Flows.SearchAggregator do
   end
 
   defp get_reducer_window() do
-    10
+    30
     |> Window.fixed(:second, &DateTime.to_unix(&1.timestamp, :millisecond))
-    |> Window.allowed_lateness(5, :second)
+    |> Window.allowed_lateness(10, :second)
   end
 
   defp kinesis_spec_opts() do

@@ -42,13 +42,13 @@ defmodule Sampleapp.Application do
         id: :searches_store,
         start: {Stages.MongoStore, :start_link, [[name: :searches, collection: "searches"]]}
       },
-      {Flows.SearchAggregator, [producers: [broadcaster_id], consumers: [:searches]]}
-      # %{
-      #   id: :rawevents_store,
-      #   start:
-      #     {Stages.MongoStore, :start_link,
-      #      [[name: :rawevents_store, producers: [broadcaster_id], collection: "rawevents"]]}
-      # }
+      {Flows.SearchAggregator, [producers: [broadcaster_id], consumers: [:searches]]},
+      %{
+        id: :rawevents_store,
+        start:
+          {Stages.MongoStore, :start_link,
+           [[name: :rawevents_store, producers: [broadcaster_id], collection: "rawevents"]]}
+      }
     ]
   end
 

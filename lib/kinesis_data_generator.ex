@@ -20,7 +20,7 @@ defmodule KinesisDataGenerator do
     "microondas"
   ]
 
-  @buffer_size_limit 100
+  @buffer_size_limit 1000
 
   # from 400 to 700 ms delay to send records to buffer
   @sleep_delay {400, 700}
@@ -34,8 +34,8 @@ defmodule KinesisDataGenerator do
   end
 
   def init(opts) do
-    users_num = Keyword.get(opts, :users, 50)
-    stores_num = Keyword.get(opts, :stores, 8)
+    users_num = Keyword.get(opts, :users, 1000)
+    stores_num = Keyword.get(opts, :stores, 10)
 
     stores_ids = generate_stores(stores_num)
     spawn_users(stores_ids, users_num)
@@ -49,13 +49,13 @@ defmodule KinesisDataGenerator do
     {:ok, state}
   end
 
-  def handle_info({:search, word, user_id, store_id}, state) do
+  def handle_info({:search, word, user_id, store_id, timestamp}, state) do
     record =
       to_kinesis(%{
         word: word,
         store_id: store_id,
         user_id: user_id,
-        timestamp: DateTime.utc_now() |> DateTime.to_iso8601()
+        timestamp: timestamp |> DateTime.to_iso8601()
       })
 
     if state.buffer_size + 1 >= @buffer_size_limit do
@@ -107,7 +107,7 @@ defmodule KinesisDataGenerator do
 
     Enum.each(search_words, fn word ->
       # send data to  process buffer
-      send(buffer_pid, {:search, word, user_id, store_id})
+      send(buffer_pid, {:search, word, user_id, store_id, DateTime.utc_now()})
       Process.sleep(get_delay())
     end)
 
