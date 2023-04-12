@@ -43,26 +43,28 @@ defmodule Sampleapp.Stages.KinesisReader do
     {:noreply, events, state}
   end
 
-  defp get_events(iterator, limit \\ @limit) do
-    {:ok, %{"NextShardIterator" => iterator, "Records" => records}} =
-      Kinesis.get_records(iterator, limit: limit) |> ExAws.request()
-
-    {records, iterator}
-  end
-
   defp schedule_fetch() do
     Process.send_after(self(), :fetch, @delay)
   end
 
   defp get_stream_iterator(stream_name) do
-    {:ok, stream_data} = Kinesis.describe_stream(stream_name) |> ExAws.request()
+    {:ok, stream_data} = stream_name |> Kinesis.describe_stream() |> ExAws.request()
 
+    # this code supports streams that has only one shard (for now...)
     shard_id = stream_data["StreamDescription"]["Shards"] |> hd() |> Map.get("ShardId")
 
-    # :trim_horizon to read starting from last read record. See https://docs.aws.amazon.com/kinesis/latest/APIReference/API_GetShardIterator.html
+    # :trim_horizon to read starting from last read record.
+    #   See https://docs.aws.amazon.com/kinesis/latest/APIReference/API_GetShardIterator.html
     {:ok, %{"ShardIterator" => iterator}} =
       stream_name |> Kinesis.get_shard_iterator(shard_id, :trim_horizon) |> ExAws.request()
 
     iterator
+  end
+
+  defp get_events(iterator, limit \\ @limit) do
+    {:ok, %{"NextShardIterator" => iterator, "Records" => records}} =
+      Kinesis.get_records(iterator, limit: limit) |> ExAws.request()
+
+    {records, iterator}
   end
 end

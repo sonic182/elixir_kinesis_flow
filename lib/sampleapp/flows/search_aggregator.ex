@@ -9,14 +9,10 @@ defmodule Sampleapp.Flows.SearchAggregator do
   require Logger
 
   def start_link(producers: producers, consumers: consumers) do
-    Logger.debug(
-      "kinesis search aggregator... producers: #{inspect(producers)}, consumers: #{inspect(consumers)}"
-    )
-
     window = get_reducer_window()
 
     producers
-    |> Flow.from_stages(kinesis_spec_opts())
+    |> Flow.from_stages([stages: 4])
     |> Flow.partition(window: window, key: {:key, :event_key})
     |> Flow.reduce(fn -> %{} end, &reduce_events/2)
     |> Flow.on_trigger(&on_reduce_trigger/3)
@@ -27,11 +23,6 @@ defmodule Sampleapp.Flows.SearchAggregator do
     30
     |> Window.fixed(:second, &DateTime.to_unix(&1.timestamp, :millisecond))
     |> Window.allowed_lateness(10, :second)
-  end
-
-  defp kinesis_spec_opts() do
-    # :stages control the internal flow concurrency
-    [stages: 4]
   end
 
   defp reduce_events(event, acc) do
