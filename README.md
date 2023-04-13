@@ -19,11 +19,9 @@ You need docker-compose utility.
 * Start containers with `docker-compose up -d`
 * Enter to app container, to start KinesisDataGenerator, which is a utility module to generate sample search data, and send that data to local kinesis
   * Enter with `docker-compose exec app bash` to app container.
-  * You can run another temporary container, just to ingest data from another "machine" (other docker container) with `docker-compose run --rm --entrypoint /bin/bash app`
-  * Now run a temporal shell with `DEBUG=1 iex -S mix`
-  * The "DEBUG" env var, is to avoid starting kinesis genservers in this test shell.
-  * Now, you can run `KinesisDataGenerator.start_link` in this shell and data will start to flow!
-  * It will stop if you close this temporal shell
+  * An alternative is to run another temporary container, just to ingest data from another machine (other docker container) with `docker-compose run --rm --entrypoint /bin/bash app`
+  * Now run a temporal shell with `DEBUG=1 iex -S mix` (the "DEBUG" env var, is to avoid starting kinesis genservers in this test shell)
+  * Now, you can run `KinesisDataGenerator.start_link` in this shell and data will start to flow! (It will stop if you close this temporal shell)
 * Now you can see app logs with `docker-compose logs -f app` to check what it is being done.
 * Also, you can connect to local mongodb, to see what data it is being saved. You can use https://www.mongodb.com/products/compass as a GUI for it.
 
