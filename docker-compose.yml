@@ -10,15 +10,11 @@ services:
       - localstack
     volumes:
       - .:/usr/src/app
-    networks:
-      vpcbr:
 
   mongo:
     image: mongo:4.4
     ports:
       - 27017:27017
-    networks:
-      vpcbr:
 
   localstack:
     container_name: "${LOCALSTACK_DOCKER_NAME-localstack_main}"
@@ -34,19 +30,6 @@ services:
       - localstack:/var/lib/localstack
       - "/var/run/docker.sock:/var/run/docker.sock"
 
-    networks:
-      vpcbr:
-        # overriding hardcoded amazon ip, as ExAws uses this ip hardcoded
-        ipv4_address: 169.254.169.254
-
 volumes:
   localstack:
 
-
-networks:
-  vpcbr:
-    driver: bridge
-    ipam:
-     config:
-       - subnet: 169.254.169.0/24
-         gateway: 169.254.169.1
